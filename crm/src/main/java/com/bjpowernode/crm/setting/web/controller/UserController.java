@@ -30,10 +30,14 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	/**
+	 * 用户登录
+	 *
 	 * RequestMapping 中的参数：
 	 * 	1.url 路径，要与 controller 方法处理完请求之后，响应信息返回的资源目录保持一致
 	 * 	  url 完整的访问路径：/WEB-INF/pages/settings/qx/user/toLogin.do
 	 * 	  但是因为所有的资源都是保存在 WEB-INF/pages/，故省去了WEB-INF/pages/
+	 * 	  这个资源路径是前台用户访问资源服务的的链接，写什么都可以
+	 *
 	 * 	2.要访问的资源名称要与方法名一致
 	 *
 	 * 	.do 的资源访问统一交给 controller 核心控制器来处理
@@ -162,5 +166,30 @@ public class UserController {
 		return returnObject;
 
 	}
+
+	/**
+	 * 安全退出
+	 *
+	 * @date:   2024/7/9 15:45
+	 **/
+	@RequestMapping("/settings/qx/user/logout.do")
+	public String logout(HttpServletResponse response,HttpSession session){
+
+		// 清空 cookie
+		Cookie c1 = new Cookie("loginAct", "1");
+		Cookie c2 = new Cookie("loginPwd", "1");
+		c1.setMaxAge(0);
+		c2.setMaxAge(0);
+		response.addCookie(c1);
+		response.addCookie(c2);
+
+		// 销毁 session
+		session.invalidate();
+
+		// 跳转到首页，重定向到用户登录页面
+		return "redirect:/";
+
+	}
+
 
 }

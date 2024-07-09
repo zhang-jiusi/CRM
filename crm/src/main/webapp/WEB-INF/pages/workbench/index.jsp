@@ -41,6 +41,13 @@
 		
 		
 		window.open("main/index.html","workareaFrame");
+
+		// 给 “确定” 按钮添加监听事件
+		$("#logoutBtn").click(function () {
+
+			// 发送同步请求
+			window.location.href = "settings/qx/user/logout.do";
+		})
 		
 	});
 	
@@ -131,9 +138,11 @@
 				<div class="modal-body">
 					<p>您确定要退出系统吗？</p>
 				</div>
+
+				<%-- 安全退出添加监听事件 --%>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="window.location.href='login.html';">确定</button>
+					<button type="button"  id="logoutBtn" class="btn btn-primary" data-dismiss="modal" >确定</button>
 				</div>
 			</div>
 		</div>
