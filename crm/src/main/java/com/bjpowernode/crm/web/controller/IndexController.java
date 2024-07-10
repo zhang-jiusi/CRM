@@ -43,6 +43,7 @@ public class IndexController {
 		 * A: 因为在 applicationContext-mvc.xml 已经配置视图解析器
 		 *
 		 **/
+
 		//请求转发（return 中返回资源路径的地址）
 		return "index";
 	}

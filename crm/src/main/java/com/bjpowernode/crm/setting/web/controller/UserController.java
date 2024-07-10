@@ -34,7 +34,8 @@ public class UserController {
 	 *
 	 * RequestMapping 中的参数：
 	 * 	1.url 路径，要与 controller 方法处理完请求之后，响应信息返回的资源目录保持一致
-	 * 	  url 完整的访问路径：/WEB-INF/pages/settings/qx/user/toLogin.do
+	 * 	  url 完整的访问路径：/WEB-INF/pages/settings/qx/user/ + toLogin.do
+	 * 	  					系统的资源目录 + 具体要访问的资源名称，改为当前的方法名
 	 * 	  但是因为所有的资源都是保存在 WEB-INF/pages/，故省去了WEB-INF/pages/
 	 * 	  这个资源路径是前台用户访问资源服务的的链接，写什么都可以
 	 *
@@ -78,11 +79,14 @@ public class UserController {
 
 		// 调用 service 层方法，查询用户
 		User user = userService.queryUserByLoginActAndPwd(map);
+
 		// returnObject 返回给前端的相关信息
 		ReturnObject returnObject = new ReturnObject();
+
 		// 根据查询结果，确定响应信息
 		// 判断 1：数据库中是否能够查询到指定的用户，
 		if(user==null){
+
 			// 登录失败 1：账户，密码错误
 			returnObject.setCode("0");
 			returnObject.setMessage("用户名或密码信息错误");
@@ -109,14 +113,17 @@ public class UserController {
 			 **/
 			// 2024-07-07 17:16:21 转义后的时间格式
 			String nowStr = DateUtils.formateDatTIme(new Date());
+
 			// 判断 2：账号时间是否过期
 			if(nowStr.compareTo(oddStr)>0){
+
 				// 登录失败 2，账号时间过期
 				returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
 				returnObject.setMessage("账号时间过期");
 
 			// 判断 3：状态是否被锁定
 			}else if("0".equals(user.getLockState())){
+
 				// 登录失败 3，状态被锁定
 				returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
 				returnObject.setMessage("状态被锁定");

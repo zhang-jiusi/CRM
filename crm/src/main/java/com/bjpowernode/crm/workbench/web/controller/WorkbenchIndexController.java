@@ -12,6 +12,8 @@ public class WorkbenchIndexController {
 
 	/**
 	 * 跳转到业务主界面
+	 *
+	 * @date: 2024/7/7 16:22
 	 **/
 	@RequestMapping("/workbench/index.do")
 	public String index(){
