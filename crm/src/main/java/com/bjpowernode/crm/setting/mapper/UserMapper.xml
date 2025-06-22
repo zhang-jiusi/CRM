@@ -226,10 +226,19 @@
     where id = #{id,jdbcType=CHAR}
   </update>
 
+  <!-- 根据 id 和密码查询用户 -->
   <select id="selectUserByLoginActAndPwd" parameterType="map" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List"></include>
+    select
+    <include refid="Base_Column_List"></include>
     from tbl_user
     where login_act=#{loginAct} and login_pwd=#{loginPwd}
   </select>
 
+  <!-- 查询所有的用户 -->
+  <select id="selectAllUses" resultMap="BaseResultMap" >
+    select
+    <include refid="Base_Column_List"></include>
+    from tbl_user
+    where lock_state='1'
+  </select>
 </mapper>
