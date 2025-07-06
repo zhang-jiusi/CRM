@@ -198,4 +198,68 @@
       #{endDate,jdbcType=CHAR}, #{cost,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
       #{createTime,jdbcType=CHAR}, #{createBy,jdbcType=VARCHAR})
   </insert>
+
+  <!-- 根据前端查询条件分页查询市场活动列表，返回Activity集合 -->
+  <!-- 将分页的条数从map参数中拿出来， beginNo 开始页，pageSize 每页条数 -->
+  <!--  从parameterType参数中拿出name参数 -->
+  <select id="selectActivityByConditionForPage" parameterType="map" resultMap="BaseResultMap">
+    select a.id,u1.name as owner,a.name,a.start_date,a.end_date,a.cost,a.description,a.create_time,
+    u2.name as create_by,a.edit_time,u3.name as edit_by
+    from tbl_activity a
+    join tbl_user u1 on a.owner=u1.id
+    join tbl_user u2 on a.create_by=u2.id
+    left join tbl_user u3 on a.edit_by=u3.id
+    <where>
+      <if test="name!=null and name!=''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner!=null and owner!=''">
+        and u1.name like '%' #{owner} '%'
+      </if>
+      <if test="startDate!=null and startDate!=''">
+        and a.start_date&gt;=#{startDate}
+      </if>
+      <if test="endDate!=null and endDate!=''">
+        and a.end_date&lt;=#{endDate}
+      </if>
+    </where>
+    order by a.create_time desc
+    limit #{beginNo},#{pageSize}
+  </select>
+  <!-- 根据前端查询条件分页查询市场活动的总条数 -->
+  <select id="selectCountOfActivityByCondition" parameterType="map" resultType="int">
+    select count(*)
+    from tbl_activity a
+    join tbl_user u1 on a.owner=u1.id
+    join tbl_user u2 on a.create_by=u2.id
+    left join tbl_user u3 on a.edit_by=u3.id
+    <where>
+      <if test="name!=null and name!=''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner!=null and owner!=''">
+        and u1.name like '%' #{owner} '%'
+      </if>
+      <if test="startDate!=null and startDate!=''">
+        and a.start_date&gt;=#{startDate}
+      </if>
+      <if test="endDate!=null and endDate!=''">
+        and a.end_date&lt;=#{endDate}
+      </if>
+    </where>
+  </select>
+    <!-- 根据ids数组批量删除市场活动 -->
+    <!--
+        insert,delete,update 语句都是自动返回受影响的条数 不需要 resultType
+        foreach内有一个大的字符串，从item=id中获取collection="array"的元素，从#{id}中取出item=id的变量值，foreach标签自动拼接为一个大的字符串
+        collection可以取值：array/list (数组/集合)
+        item:循环变量名，从collection中的每一个集合中拿到一个值，都被循环赋值为iitem变量参数
+    -->
+    <delete id="deleteActivityByIds" parameterType="string">
+        delete from tbl_activity
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

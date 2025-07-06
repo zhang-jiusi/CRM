@@ -8,6 +8,7 @@ import com.bjpowernode.crm.setting.domain.User;
 import com.bjpowernode.crm.setting.service.UserService;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
+import com.sun.tools.javac.jvm.ByteCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
@@ -16,9 +17,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
+import static com.sun.tools.javac.jvm.ByteCodes.ret;
 
 /**
  * 市场活动的 controller
@@ -97,5 +98,70 @@ public class ActivityController {
 
 		return returnObject;
 	}
+
+	/*
+	 * 分页查询数据
+	 * PageNo：第几页，pageSize：每页显示的条数
+	 * @date:   2025/6/24 22:57
+	 **/
+	@RequestMapping("/workbench/activity/queryActivityByConditionForPage.do")
+	public @ResponseBody Object queryActivityByConditionForPage(String name,String owner,
+																String startDate,String endDate,
+																int pageNo,int pageSize){
+
+		System.out.println("===================奇怪，打印不出来这个参数======================");
+		System.out.println("name:"+name+",owner："+owner+",startDate："+startDate+
+				",endDate："+endDate+",pageNo："+pageNo+",pageSize："+pageSize);
+		System.out.println("========================================================");
+		//封装参数
+		Map<String,Object> map=new HashMap<>();
+		map.put("name",name);
+		map.put("owner",owner);
+		map.put("startDate",startDate);
+		map.put("endDate",endDate);
+		map.put("beginNo",(pageNo-1)*pageSize);
+		map.put("pageSize",pageSize);
+
+		//调用service层方法，查询数据
+		List<Activity> activityList=activityService.queryActivityByConditionForPage(map);
+		int totalRows=activityService.queryCountOfActivityByCondition(map);
+		//根据查询结果结果，生成响应信息
+		Map<String,Object> retMap=new HashMap<>();
+		retMap.put("activityList",activityList);
+		retMap.put("totalRows",totalRows);
+		return retMap;
+	}
+
+	/**
+	 * 删除数据
+	 * @date:   2025/7/3 22:17
+	 **/
+	@RequestMapping("/workbench/activity/deleteActivityIds.do")
+	@ResponseBody
+	public Object deleteActivityIds(String[] id){
+
+		System.out.println("======================"+id);
+		ReturnObject returnObject = new ReturnObject();
+
+		try{
+			// 调用service层方法，删除市场活动请求
+			int ret = activityService.deleteActivityByIds(id);
+			if(ret>0){
+				returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+			}else {
+				returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+				returnObject.setMessage("系统忙碌，请稍后再试！");
+			}
+
+		}catch (Exception e){
+			e.printStackTrace();
+			returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+			returnObject.setMessage("系统忙碌，请稍后再试！");
+
+		}
+
+		return returnObject;
+
+	};
 
 }
