@@ -55,6 +55,25 @@ public class ActivityServiceImpl implements ActivityService {
 	public int deleteActivityByIds(String[] ids){
 
 		return activityMapper.deleteActivityByIds(ids);
-	};
+	}
+
+	/**
+	 * 根据id查询市场活动
+	 * @date:   2025/7/6 23:07
+	 **/
+	@Override
+	public Activity queryActivityById(String id) {
+		return activityMapper.selectActivityById(id);
+	}
+
+	/**
+	 * 保存更新数据
+	 * @date:   2025/7/12 23:17
+	 **/
+	@Override
+	public int saveEditActivty(Activity activty) {
+		return activityMapper.updateActivity(activty);
+	}
+
 
 }

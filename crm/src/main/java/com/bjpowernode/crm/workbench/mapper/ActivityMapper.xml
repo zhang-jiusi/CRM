@@ -262,4 +262,20 @@
             #{id}
         </foreach>
     </delete>
+    <!-- 根据市场活动id查询市场活动 -->
+    <select id="selectActivityById" parameterType="string" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tbl_activity
+        where id=#{id}
+    </select>
+    <!-- 保存修改的市场活动 -->
+    <update id="updateActivity" parameterType="com.bjpowernode.crm.workbench.domain.Activity">
+        update tbl_activity
+        set owner=#{owner}, name=#{name},
+        start_date=#{startDate},end_date=#{endDate},
+        cost=#{cost},description=#{description},
+        edit_time=#{editTime},edit_by=#{editBy}
+        where id=#{id}
+    </update>
 </mapper>

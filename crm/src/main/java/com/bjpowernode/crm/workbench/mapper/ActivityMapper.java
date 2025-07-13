@@ -68,6 +68,18 @@ public interface ActivityMapper {
      **/
     int deleteActivityByIds(String[] ids);
 
+    /**
+     * 根据id来查询查询市场活动的信息
+	 * @date:   2025/7/6 22:54
+     **/
+	Activity selectActivityById(String id);
+
+
+	/**
+	 * 保存修改的市场活动
+	 * @date:   2025/7/12 22:57
+	 **/
+	int updateActivity(Activity activity);
 
 
 

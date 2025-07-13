@@ -74,8 +74,19 @@ public class ActivityController {
 		 **/
 		activity.setId(UUIDUtils.getUUID());
 		activity.setCreateTime(DateUtils.formateDatTIme(new Date()));
-		activity.getCreateBy(user.getId());
-
+		activity.setCreateBy(user.getId());
+		System.out.println("--------------- user.toString() ---------------");
+		System.out.println(user.toString());
+		/*
+		* User{id='06f5fc056eac41558a964f96daa7f27c', loginAct='ls', name='李四',
+		*      loginPwd='yf123', email='ls@163.com', expireTime='2025-11-27 21:50:05',
+		*      lockState='1', deptno='A001',
+		*      allowIps='192.168.1.1,0:0:0:0:0:0:0:1,192.168.1.126,192.168.183.1,192.168.183.1192.168.1.1,192.168.1.2,127.0.0.1,0:0:0:0:0:0:0:1',
+		*      createtime='2018-11-22 12:11:40',
+		*      createBy='李四',
+		*      editTime='null', editBy='null'}
+		**/
+		System.out.println("--------------- user.toString() ---------------");
 		/**
 		 * 向数据库中写入数据的时候 ，使用 try{}catch{} 包裹住写数据语句
 		 * 成功：返回受影响的记录条数 失败：返回 0
@@ -140,7 +151,6 @@ public class ActivityController {
 	@ResponseBody
 	public Object deleteActivityIds(String[] id){
 
-		System.out.println("======================"+id);
 		ReturnObject returnObject = new ReturnObject();
 
 		try{
@@ -163,5 +173,49 @@ public class ActivityController {
 		return returnObject;
 
 	};
+
+	/**
+	 * 根据id查询市场活动
+	 * @date:   2025/7/7 23:01
+	 **/
+	@RequestMapping("/workbench/activity/queryActivityById.do")
+	@ResponseBody
+	public Object queryActivityById(String id){
+		// 调用service层查询市场活动
+		Activity activity = activityService.queryActivityById(id);
+		// 根据查询结果，返回查询信息
+		return activity;
+	}
+
+
+
+	/**
+	 * 保存修改数据信息
+	 * @date:   2025/7/13 18:02
+	 **/
+	@ResponseBody
+	@RequestMapping("/workbench/activity/saveEditActivity.do")
+	public Object saveEditActivity(Activity activity,HttpSession session){
+		User user = (User)session.getAttribute(Contants.SESSION_USER);
+		// 进一步封装参数
+		activity.setEditTime(DateUtils.formateDatTIme(new Date()));
+		activity.setEditBy(user.getId());
+		ReturnObject returnObject = new ReturnObject();
+		// 调用service层方法，保存市场活动
+		try{
+			int ret = activityService.saveEditActivty(activity);
+			if(ret>0){
+				returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+			}else{
+				returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+				returnObject.setMessage("系统忙，请稍后！");
+			}
+		}catch (Exception e){
+			returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+			returnObject.setMessage("系统忙，请稍后！");
+		}
+
+		return returnObject;
+	}
 
 }

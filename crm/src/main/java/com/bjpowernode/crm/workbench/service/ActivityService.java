@@ -35,4 +35,16 @@ public interface ActivityService {
 	 * @date:   2025/7/2 23:30
 	 **/
 	int deleteActivityByIds(String[] ids);
+
+	/**
+	 * 根据市场活动添加id
+	 * @date:   2025/7/6 23:05
+	 **/
+	Activity queryActivityById(String id);
+
+	/**
+	 * 保存修改活动数据
+	 * @date:   2025/7/12 23:14
+	 **/
+	int saveEditActivty(Activity activty);
 }
