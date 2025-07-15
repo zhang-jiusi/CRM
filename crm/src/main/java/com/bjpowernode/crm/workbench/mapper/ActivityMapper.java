@@ -81,6 +81,16 @@ public interface ActivityMapper {
 	 **/
 	int updateActivity(Activity activity);
 
+	/**
+	 * 查询所有的市场活动
+	 * @date:   2025/7/15 11:02
+	 **/
+	List<Activity> selectAllActivitys();
 
+	/**
+	 * 选择导出市场活动
+	 * @date:   2025/7/15 17:28
+	 **/
+	List<Activity> selectActivityByIds(String[] ids);
 
 }

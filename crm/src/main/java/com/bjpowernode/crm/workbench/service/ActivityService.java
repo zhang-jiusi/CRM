@@ -47,4 +47,15 @@ public interface ActivityService {
 	 * @date:   2025/7/12 23:14
 	 **/
 	int saveEditActivty(Activity activty);
+
+	/**
+	 * 查询所有的市场活动
+	 * @date:   2025/7/15 11:12
+	 **/
+	List<Activity> queryAllActivitys();
+
+	/**
+	 * @date:   2025/7/15 19:41
+	 **/
+	List<Activity> queryActivityByIds(String[] ids);
 }

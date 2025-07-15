@@ -164,7 +164,6 @@
         /**
          * 给“全选”按钮添加单击事件
          */
-
         $("#chckAll").click(function () {
             // case1.如果“全选”按钮是选中状态，则列表中的所有checkbox按钮都是选中状态,this 表示当前正在发生这个事件dom对象
             // 写法1
@@ -176,7 +175,7 @@
             }*/
             // 写法2
             $("#tBody input[type='checkbox']").prop("checked",this.checked);
-        })
+        }); // $("#chckAll") 给“全选”按钮添加单击事件
 
         // case2：有列表中的一个复选框没选中，表头取消“全选"按钮选中状态
         // 表示列表中的任何一个复选框触发了单机事件，都会执行的事件
@@ -201,12 +200,12 @@
             }else{
                 $("#chckAll").prop("checked",false);
             };
-        })
+        });//
 
         /**
          * 删除市场活动数据
          */
-        // 给删除按钮添加单机事件
+        // 给删除按钮添加单击事件
         $("#deleteActivityButton").click(function () {
             // 收集参数（选中的市场活动id）
             // 获取列表中所有被选中的checkbox
@@ -250,10 +249,10 @@
                 alert("ajax 参数执行完成！");
             }
 
-        })
+        }) // $("#deleteActivityButton") 给删除按钮添加单击事件
 
 
-        // 给修改按钮添加单机事件
+        // 给修改按钮添加单击事件
         $("#editActivityButton").click(function () {
             // 收件参数
             // 获取列表中被选中的 checkBox
@@ -299,11 +298,11 @@
                     $("#editActivityModal").modal("show");
                 }
             })
-        });//  $("#editActivityButton")
+        });//  $("#editActivityButton")  给修改按钮添加单击事件
 
 
 		/**
-		 * 给“更新”按钮添加单机实践
+		 * 给“更新”按钮添加单击事件
 		 */
 		$("#saveEditActivityButton").click(function () {
 
@@ -347,8 +346,41 @@
 				}
 
 			})
-		});//$("#saveEditActivityButton")
-        
+		});//$("#saveEditActivityButton") 给“更新”按钮添加单击事件
+
+		/**
+		 * 给“批量导出（全部数据）”按钮添加单击事件
+		 */
+		$("#exportActivityAllBtn").click(function () {
+			window.location.href="workbench/activity/exportAllActivity.do";
+		});
+
+		/**
+		 * 给“选择导出（全部数据）”按钮添加单击事件
+		 */
+		$("#exportActivityXzBtn").click(function () {
+
+			var checkedIds = $("#tBody input[type='checkbox']:checked");
+			if(checkedIds.size()==0){
+				alert("请选择要导出的市场活动！");
+				return;
+			}else {
+				var ids = "";  //"id=xxx&id=xxx&id=xxx&id=xxx& 向后台发送拼成的数据
+				$.each(checkedIds, function (index, obj) {
+					ids += "id=" + this.value + "&";
+				});
+				ids = ids.substr(0, ids.length - 1);
+
+				alert("查看ids字符串是否拼接成功" + ids); // 成功拿到拼接的字符串
+
+				window.location.href = "workbench/activity/exportXZActivity.do"+"?"+ids;
+				console.log("workbench/activity/exportXZActivity.do"+"?"+ids); // 在执行完 window.location.href 还会执行后续的代码嘛？
+
+			}
+
+		})// $("#exportActivityXzBtn") 给“部分导出”按钮添加单击事件
+
+		
     });// $(function()) 入口函数
 
 	// 入口函数外，封装查询市场活动函数

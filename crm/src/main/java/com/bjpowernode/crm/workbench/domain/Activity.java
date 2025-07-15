@@ -290,7 +290,7 @@ public class Activity {
      * @mbggenerated Sun Jun 15 23:03:32 CST 2025
 	 * @param id
      */
-    public String getCreateBy(String id) {
+    public String getCreateBy() {
         return createBy;
     }
 

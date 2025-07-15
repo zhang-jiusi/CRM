@@ -75,5 +75,21 @@ public class ActivityServiceImpl implements ActivityService {
 		return activityMapper.updateActivity(activty);
 	}
 
+	/**
+	 * 查询所有的市场活动
+	 * @date:   2025/7/15 11:17
+	 **/
+	@Override
+	public List<Activity> queryAllActivitys() {
+		return activityMapper.selectAllActivitys();
+	}
 
+	/**
+	 * 根据id数组查询相对应的记录
+	 * @date:   2025/7/15 19:42
+	 **/
+	@Override
+	public List<Activity> queryActivityByIds(String[] ids) {
+		return activityMapper.selectActivityByIds(ids);
+	}
 }

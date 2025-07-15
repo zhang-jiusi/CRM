@@ -8,17 +8,27 @@ import com.bjpowernode.crm.setting.domain.User;
 import com.bjpowernode.crm.setting.service.UserService;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
+import com.sun.deploy.net.HttpResponse;
 import com.sun.tools.javac.jvm.ByteCodes;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.*;
 import java.util.*;
 
+import static com.sun.tools.javac.jvm.ByteCodes.bool_not;
 import static com.sun.tools.javac.jvm.ByteCodes.ret;
 
 /**
@@ -218,4 +228,281 @@ public class ActivityController {
 		return returnObject;
 	}
 
-}
+	/**
+	 *  使用 filedownloadtest.jsp 演示文件下载,并非主体功能
+	 *  文件下载
+	 *
+	 * 注意：返回网页，		用String类型的返回值，
+	 * 		返回JSON的时候， 用Object类型的返回值
+	 * 		返回文件的时候， 不借助返回类型返回数据，使用流输出文件信息
+	 * @date:   2025/7/14 18:47
+	 **/
+	@RequestMapping("/workbench/activity/fileDownload.do")
+	public void fileDownload(HttpServletResponse response) throws IOException {
+
+		/* 读服务器中的excel文件 */
+		// 1.设置响应信息
+		response.setContentType("application/octet-stream;charset=UTF-8");
+
+		// 2.获取输出流
+
+		/**
+		 * 浏览器在接收到响应信息时候，
+		 * 默认情况下，直接显示在窗口中的打开响应信息，
+		 * 即使打不开，也会调用应用程序打开，只有实在打不开，才会激活文件下载窗口
+		 *
+		 * 可以设置响应头信息，使得浏览器在收到响应信息后，直接激活文件下载床口，即使能也不打开
+		 **/
+		response.addHeader("Content-Disposition","attachement;filename=myStudenList.xls");
+
+		ServletOutputStream out = response.getOutputStream();
+		// 读取excel文件（InputStream），把输出到浏览器（OutputStream）
+		FileInputStream is = new FileInputStream("C:\\Users\\Administrator\\Desktop\\1010 Studio.xlsx");
+		byte[] buff = new byte[256];
+		int len = 0;
+		while ((len=is.read(buff))!=-1){
+			out.write(buff,0,len);
+		}
+
+
+		is.close();
+		out.flush();
+
+	}
+
+	/**
+	 * 导出全部市场活动
+	 * @date:   2025/7/15 11:40
+	 **/
+	@RequestMapping("/workbench/activity/exportAllActivity.do")
+	public void exportAllActivity(HttpServletResponse response) throws Exception {
+		// 查询所有的市场活动
+		List<Activity> activityList = activityService.queryAllActivitys();
+
+		// 将查询到的数据写入到 excel 文件中
+		HSSFWorkbook wb = new HSSFWorkbook();
+		HSSFSheet sheet = wb.createSheet("市场活动");
+		HSSFRow row = sheet.createRow(0);// 行下标从0开始，用作表头
+
+		HSSFCell cell = row.createCell(0);// 单元格？列下标，从0开始
+		cell.setCellValue("id");
+
+		cell = row.createCell(1);
+		cell.setCellValue("owner");
+
+		cell = row.createCell(2);
+		cell.setCellValue("name");
+
+		cell = row.createCell(3);
+		cell.setCellValue("start_date");
+
+		cell = row.createCell(4);
+		cell.setCellValue("end_date");
+
+		cell = row.createCell(5);
+		cell.setCellValue("cost");
+
+		cell = row.createCell(6);
+		cell.setCellValue("description");
+
+		cell = row.createCell(7);
+		cell.setCellValue("create_time");
+
+		cell = row.createCell(8);
+		cell.setCellValue("create_by");
+
+		cell = row.createCell(9);
+		cell.setCellValue("edit_time");
+
+		cell = row.createCell(10);
+		cell.setCellValue("edit_by");
+
+		Activity activity = null;
+		// 遍历activityList数组，生成所有数据行
+		if(activityList!=null && activityList.size()>0){
+			for(int i=0;i<activityList.size();i++){
+				activity = activityList.get(i);
+				row = sheet.createRow(i+1);
+
+				cell = row.createCell(0);// 单元格？列下标，从0开始
+				cell.setCellValue(activity.getId());
+
+				cell = row.createCell(1);
+				cell.setCellValue(activity.getOwner());
+
+				cell = row.createCell(2);
+				cell.setCellValue(activity.getName());
+
+				cell = row.createCell(3);
+				cell.setCellValue(activity.getStartDate());
+
+				cell = 	row.createCell(4);
+				cell.setCellValue(activity.getEndDate());
+
+				cell = cell = row.createCell(5);
+				cell.setCellValue(activity.getCost());
+
+				cell = row.createCell(6);
+				cell.setCellValue(activity.getDescription());
+
+				cell = row.createCell(7);
+				cell.setCellValue(activity.getCreateTime());
+
+				cell = row.createCell(8);
+				cell.setCellValue(activity.getCreateBy());
+
+				cell = row.createCell(9);
+				cell.setCellValue(activity.getEditTime());
+
+				cell = row.createCell(10);
+				cell.setCellValue(activity.getEditBy());
+			}
+		}
+
+		// 根据wb对象，生成excel对象
+		/* 优化：不在将从数据库中查询到的数据写入到磁盘中，再通过输入流is，输出流os输出到前台页面中
+		FileOutputStream os = new FileOutputStream("C:\\Users\\Administrator\\Desktop\\ActivityList.xls");
+		wb.write(os);
+		// 关闭资源
+		os.close();
+		wb.close();
+		*/
+
+		// 把生成的excel文件下载到用户客户端
+		// 1.设置响应信息
+		response.setContentType("application/octet-stream;charset=UTF-8");
+		response.addHeader("Content-Disposition","attachement;filename=myStudenList.xls");
+
+		// 2.获取输出流
+		OutputStream out = response.getOutputStream();
+		// 3.创建输入流读取文件
+		/*
+		FileInputStream is = new FileInputStream("C:\\Users\\Administrator\\Desktop\\ActivityList.xls");
+		byte[] buff = new byte[256];
+		int len = 0;
+		while ((len=is.read(buff))!=-1){
+			out.write(buff,0,len);
+		}
+		is.close();
+		*/
+		wb.write(out);
+		wb.close();
+		out.flush();
+
+
+	}
+
+	/**
+	 * 选择导出市场活动
+	 * @date:   2025/7/15 17:27
+	 **/
+	@RequestMapping("/workbench/activity/exportXZActivity.do")
+	public void exportXZActivity(HttpServletResponse response,@RequestParam("id")String[] ids) throws Exception {
+		// 查询指定ids数组的市场活动信息
+		System.out.println("========================进入 exportXZActivity =========================");
+		if(ids==null){
+			System.out.println("ids没有接收到参数");
+		}
+		System.out.println(ids.toString());
+		System.out.println(ids.length);
+		List<Activity> activityList = activityService.queryActivityByIds(ids);
+
+		System.out.println("========================遍历 activityList 数组=========================");
+		Activity activity1 = activityList.get(0);
+		System.out.println(activity1.getId());
+		System.out.println("========================遍历 activityList 数组=========================");
+		// 将查询到的数据写入到 excel 文件中
+		HSSFWorkbook wb = new HSSFWorkbook();
+		HSSFSheet sheet = wb.createSheet("市场活动");
+		HSSFRow row = sheet.createRow(0);// 行下标从0开始，用作表头
+
+		HSSFCell cell = row.createCell(0);// 列下标，从0开始
+		cell.setCellValue("id");
+
+		cell = row.createCell(1);
+		cell.setCellValue("所有者");
+
+		cell = row.createCell(2);
+		cell.setCellValue("名称");
+
+		cell = row.createCell(3);
+		cell.setCellValue("开始事件");
+
+		cell = row.createCell(4);
+		cell.setCellValue("结束事件");
+
+		cell = row.createCell(5);
+		cell.setCellValue("成本");
+
+		cell = row.createCell(6);
+		cell.setCellValue("描述");
+
+		cell = row.createCell(7);
+		cell.setCellValue("创建时间");
+
+		cell = row.createCell(8);
+		cell.setCellValue("创建者");
+
+		cell = row.createCell(9);
+		cell.setCellValue("编辑时间");
+
+		cell = row.createCell(10);
+		cell.setCellValue("编辑者");
+
+		Activity activity = null;
+		// 遍历activityList数组，生成所有数据行
+		if(activityList!=null && activityList.size()>0){
+			for(int i=0;i<activityList.size();i++){
+				activity = activityList.get(i);
+				row = sheet.createRow(i+1);
+
+				cell = row.createCell(0);
+				cell.setCellValue(activity.getId());
+
+				cell = row.createCell(1);
+				cell.setCellValue(activity.getOwner());
+
+				cell = row.createCell(2);
+				cell.setCellValue(activity.getName());
+
+				cell = row.createCell(3);
+				cell.setCellValue(activity.getStartDate());
+
+				cell = 	row.createCell(4);
+				cell.setCellValue(activity.getEndDate());
+
+				cell = cell = row.createCell(5);
+				cell.setCellValue(activity.getCost());
+
+				cell = row.createCell(6);
+				cell.setCellValue(activity.getDescription());
+
+				cell = row.createCell(7);
+				cell.setCellValue(activity.getCreateTime());
+
+				cell = row.createCell(8);
+				cell.setCellValue(activity.getCreateBy());
+
+				cell = row.createCell(9);
+				cell.setCellValue(activity.getEditTime());
+
+				cell = row.createCell(10);
+				cell.setCellValue(activity.getEditBy());
+			}
+		}
+
+		response.setContentType("application/octet-stream;charset=UTF-8");
+		response.addHeader("Content-Disposition","attachement;filename=myStudenList.xls");
+
+		// 2.获取输出流
+		OutputStream out = response.getOutputStream();
+
+		wb.write(out);
+		wb.close();
+		out.flush();
+
+
+	}
+
+
+	}
