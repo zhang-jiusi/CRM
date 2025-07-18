@@ -93,4 +93,16 @@ public interface ActivityMapper {
 	 **/
 	List<Activity> selectActivityByIds(String[] ids);
 
+	/**
+	 * 批量插入市场活动
+	 * @date:   2025/7/16 16:00
+	 **/
+	int insertActivityByList(List<Activity> activityList);
+
+	/**
+	 * 根据id查询市场活动的详情信息
+	 * @date:   2025/7/18 0:49
+	 **/
+	Activity selectActivityForDetailById(String id);
+
 }

@@ -55,7 +55,20 @@ public interface ActivityService {
 	List<Activity> queryAllActivitys();
 
 	/**
+	 * 根据id查询市场霍东阁
 	 * @date:   2025/7/15 19:41
 	 **/
 	List<Activity> queryActivityByIds(String[] ids);
+
+	/**
+	 * 批量插入市场活动数据
+	 * @date:   2025/7/16 16:15
+	 **/
+	int saveCreateActivityByList(List<Activity> activityList);
+
+	/**
+	 * 根据id查询市场活动详情
+	 * @date:   2025/7/18 10:09
+	 **/
+	Activity queryActivityForDetailById(String id);
 }
