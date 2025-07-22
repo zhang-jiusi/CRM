@@ -92,4 +92,22 @@ public class ActivityServiceImpl implements ActivityService {
 	public List<Activity> queryActivityByIds(String[] ids) {
 		return activityMapper.selectActivityByIds(ids);
 	}
+
+	/**
+	 * 批量插入市场活动
+	 * @date:   2025/7/16 16:16
+	 **/
+	@Override
+	public int saveCreateActivityByList(List<Activity> activityList) {
+		return activityMapper.insertActivityByList(activityList);
+	}
+
+	/**
+	 * 根据id查询市场活动详情
+	 * @date:   2025/7/18 10:10
+	 **/
+	@Override
+	public Activity queryActivityForDetailById(String id) {
+		return activityMapper.selectActivityForDetailById(id);
+	}
 }

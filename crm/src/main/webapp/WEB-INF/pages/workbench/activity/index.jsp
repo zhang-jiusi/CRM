@@ -12,7 +12,7 @@
 	<base href="<%=basePath%>">
 
 <link href="jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-<link rel="stylesheet" href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" />
+<link href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css"rel="stylesheet" />
 
 <script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
@@ -179,18 +179,6 @@
 
         // case2：有列表中的一个复选框没选中，表头取消“全选"按钮选中状态
         // 表示列表中的任何一个复选框触发了单机事件，都会执行的事件
-        /*
-        * $("#tBody input[type='checkbox']").click(function () {} 仅仅固有元素添加事件
-        */
-        /*$("#tBody input[type='checkbox']").click(function () {
-            // 如果列表中的所有 checkbox都处于选中状态，则表头“全选”按钮处于选中状态
-            // 思路：拿到数组中所有的checkbox和所有选中状态的checkbox进行比较
-           if( $("#tBody input[type='checkbox']").size()==$("#tBody input[type='checkbox']:checked").size()){
-               $("#chckAll").prop("checkbox",true);
-           }else{
-               $("#chckAll").prop("checkbox",false);
-           };
-        })*/
         // 使用：父选择器.on("事件类型",子选择器,function(){
         $("#tBody").on("click","input[type='checkbox']",function () {
             // 如果列表中的所有 checkbox都处于选中状态，则表头“全选”按钮处于选中状态
@@ -249,7 +237,7 @@
                 alert("ajax 参数执行完成！");
             }
 
-        }) // $("#deleteActivityButton") 给删除按钮添加单击事件
+        });// $("#deleteActivityButton") 给删除按钮添加单击事件
 
 
         // 给修改按钮添加单击事件
@@ -378,52 +366,121 @@
 
 			}
 
-		})// $("#exportActivityXzBtn") 给“部分导出”按钮添加单击事件
+		});// $("#exportActivityXzBtn") 给“部分导出”按钮添加单击事件
 
+		/**
+		 * 给模态窗口中的“导入”按钮添加单击事件
+		 * importActivityBtn：模态窗口中导入按钮
+		 * importActivityModal：市场活动页面中，“上传列表数据（导入）”按钮
+		 *	 上传列表数据（导入）的模态窗口是谁打开的？上传列表数据（导入）谁控制了模态窗口的打开
+		 *	 data-toggle="modal" data-target="#importActivityModal"
+		 */
+		$("#importActivityBtn").click(function () {
+			/* 1.收集页面参数（$("#activityFile").val() 拿到的是文件名称，一般val拿到的是输入框数据） */
+		 	var activityFileName = $("#activityFile").val();
+		 	/*
+		 	* 拿到文件名以后做表单验证，仅允许.xls 文件上传
+		 	* 	str.substr(startIndex,length)   	startIndex：开始下标  length：截取长度
+		 	* 	str.substr(startIndex)				从下标为startIndex的字符开始截取，到最后
+		 	* 	str.substring(startIndex,endIndex)	startIndex：开始下标  endIndex：结束下标
+		 	*
+		 	* 	str.lastIndexOf(".")				获取某个字符串字符的指定下标，包含指定的下标
+		 	* 	str.toLocaleLowerCase()				将字符串转为小写
+		 	*/
+			var suffix = activityFileName.substr(activityFileName.lastIndexOf(".")+1).toLocaleLowerCase();
+			if(suffix!="xls"){
+				alert("仅支持xls文件名！");
+				return ;
+			}
+			/*
+			* $("#activityFile")[0] 			拿到当前属性的dom对象
+			* $("#activityFile")[0].files		当用户上传文件后，将文件保存在dom对象的.files 数组属性中,可以上传多个文件
+			*/
+			var activityFile = $("#activityFile")[0].files[0];
+			if(activityFile.size>1024*1024*5){
+				alert("文件大小："+activityFile.size+"，文件大小不能大于5MB");
+				return;
+			}
+			/**
+			 * 2.发送参数
+			 * FormData是ajax中提供的接口，可以模拟键值对提交参数信息
+			 * 		   可以提交文本字符串数据，还可以提交二级制文件，视频，音频，文件
+			 *
+			 * formData.append(String name,String file)
+			 * 				          name：自定义参数名与controller中形参名一致
+			 * 						  file：文件，由$("#importActivityBtn")[0].files[0]获取
+			 */
+			var formData =  new FormData();
+			formData.append("activityFile",activityFile);
+			formData.append("username","张三");
+			$.ajax({
+				url:'workbench/activity/importActivity.do',
+				data:formData,
+				processData:false,	// 用于设置ajax在提交参数之前，是否要把参数转换为字符串， true 转换(默认) false 不转换
+				contentType:false,  // 用于设置ajax在提交参数之前，是否要把参数统一按照urlencode编码，ture 是(默认)，false 不是
+				type:'post',
+				dataType:'json',
+				success:function (data) {
+					if(data.code=="1"){
+						// 提示导入成条数
+						alert("成功导入"+data.retData+"记录！");
+						// 关闭模态窗口
+						$("#importActivityModal").modal("hide");
+						// 刷新市场活动列表，显示第一页的数据，保存每页的条数不变
+						queryActivityByConditionForPage(1,$("#demo_pag1").bs_pagination('getOption','rowsPerPage'))
+					}else{
+						// 未导入数据，显示错误提示信息
+						alert(data.message);
+						// 模态窗口不关闭
+						$("#importActivityModal").modal("show");
+					}
+				}
+			});
+		}); //$("#importActivityBtn") 给模态窗口中的“导入”按钮添加单击事件
 		
     });// $(function()) 入口函数
 
 	// 入口函数外，封装查询市场活动函数
-    function queryActivityByConditionForPage(pageNo,pageSize) {
-        // 收集参数
-        var name = $("#query-name").val();
-        var owner = $("#query-owner").val();
-        var startDate = $("#query-startDate").val();
-        var endDate = $("#query-endDate").val();
-        // var pageNo = 1;    	// 查询第一页
-        // var pageSize = 10;	// 每页显示的条数
-        // 发送请求
-        $.ajax({
-            url:'workbench/activity/queryActivityByConditionForPage.do',
-            data:{
-                // data中参数名要与后台接受请求的参数名一致
-                name:name,
-                owner:owner,
-                startDate:startDate,
-                endDate:endDate,
-                pageNo:pageNo,
-                pageSize:pageSize,
-            },
-            type:'post',
-            dataType:'json',
-            success:function (data) { // data：接受后台返回的响应信息
-                // .text() 更改选项框内容
-                // 显示总条数
-               // $("#totalRowsB").text(data.totalRows);
-                // 显示市场活动列表
-                // 遍历activityList集合，拼接所有的行数据，JSTL 标签用于遍历作用域中的标签，$.each() 遍历ajax中的data数据
-                // function (index,obj),intdex是activityList的数据下标，obj从activityList取出数据元素
-                // \" 转义双引号
-                var htmlStr="";
-                $.each(data.activityList,function (index,obj) {
-                    htmlStr+="<tr class=\"active\">";
-                    htmlStr+="<td><input type=\"checkbox\" value=\""+obj.id+"\"></td>";
-                    htmlStr+="<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='detail.html';\">"+obj.name+"</a></td>";
-                    htmlStr+="<td>"+obj.owner+"</td>";
-                    htmlStr+="<td>"+obj.startDate+"</td>";
-                    htmlStr+="<td>"+obj.endDate+"</td>";
-                    htmlStr+="</tr>";
-                });
+                function queryActivityByConditionForPage(pageNo,pageSize) {
+                    // 收集参数
+                    var name = $("#query-name").val();
+                    var owner = $("#query-owner").val();
+                    var startDate = $("#query-startDate").val();
+                    var endDate = $("#query-endDate").val();
+                    // var pageNo = 1;    	// 查询第一页
+                    // var pageSize = 10;	// 每页显示的条数
+                    // 发送请求
+                    $.ajax({
+                        url:'workbench/activity/queryActivityByConditionForPage.do',
+                        data:{
+                            // data中参数名要与后台接受请求的参数名一致
+                            name:name,
+                            owner:owner,
+                            startDate:startDate,
+                            endDate:endDate,
+                            pageNo:pageNo,
+                            pageSize:pageSize
+                        },
+                        type:'post',
+                        dataType:'json',
+                        success:function (data) { // data：接受后台返回的响应信息
+                            // .text() 更改选项框内容
+                            // 显示总条数
+                            // $("#totalRowsB").text(data.totalRows);
+                            // 显示市场活动列表
+                            // 遍历activityList集合，拼接所有的行数据，JSTL 标签用于遍历作用域中的标签，$.each() 遍历ajax中的data数据
+                            // function (index,obj),intdex是activityList的数据下标，obj从activityList取出数据元素
+                            // \" 转义双引号
+                            var htmlStr="";
+                            $.each(data.activityList,function (index,obj) {
+                                htmlStr+="<tr class=\"active\">";
+                                htmlStr+="<td><input type=\"checkbox\" value=\""+obj.id+"\"></td>";
+                                htmlStr+="<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='workbench/activity/detailActivity.do?id="+obj.id+"'\">"+obj.name+"</a></td>";
+                                htmlStr+="<td>"+obj.owner+"</td>";
+                                htmlStr+="<td>"+obj.startDate+"</td>";
+                                htmlStr+="<td>"+obj.endDate+"</td>";
+                                htmlStr+="</tr>";
+                            });
 
                 // .html(JSP页面片段字符串)  覆盖显示，.append(JSP页面片段字符串)  追加显示
                 $("#tBody").html(htmlStr);

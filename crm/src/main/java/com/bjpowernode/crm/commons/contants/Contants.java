@@ -17,4 +17,13 @@ public class Contants {
 
 	/* 保存当前用户信息的 key */
 	public static final String SESSION_USER = "sessionUser";
+
+	/*  */
+	/**
+	 *  备注的修改标记
+	 * 	REMARK_EDIT_FlAG_NO_EDITED = "0"  	未修改
+	 * 	REMARK_EDIT_FlAG_YES_EDITED = "1"	已修改
+	 **/
+	public static final String REMARK_EDIT_FlAG_NO_EDITED = "0";
+	public static final String REMARK_EDIT_FlAG_YES_EDITED = "1";
 }

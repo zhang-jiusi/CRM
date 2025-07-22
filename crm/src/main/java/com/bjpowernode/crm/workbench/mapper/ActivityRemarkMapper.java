@@ -59,5 +59,23 @@ public interface ActivityRemarkMapper {
      **/
     List<ActivityRemark> selectActivityRemarkForDetailByActivityId(String activityId);
 
+    /**
+     * 保存创建的市场活动备注
+     * @date:   2025/7/18 22:24
+     **/
+    int insertActivityRemark(ActivityRemark activityRemark );
+
+
+    /**
+     * 根据市场活动的备注id删除备注信息
+     * @date:   2025/7/20 0:23
+     **/
+    int deleteActivityRemarkById(String id);
+
+    /**
+     * 保存市场活动备注的修改内容
+     * @date:   2025/7/21 0:46
+     **/
+    int updateActivityRemark(ActivityRemark remark);
 
 }

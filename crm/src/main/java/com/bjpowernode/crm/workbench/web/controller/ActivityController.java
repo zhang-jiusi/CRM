@@ -3,10 +3,13 @@ package com.bjpowernode.crm.workbench.web.controller;
 import com.bjpowernode.crm.commons.contants.Contants;
 import com.bjpowernode.crm.commons.domain.ReturnObject;
 import com.bjpowernode.crm.commons.utils.DateUtils;
+import com.bjpowernode.crm.commons.utils.HSSFUtils;
 import com.bjpowernode.crm.commons.utils.UUIDUtils;
 import com.bjpowernode.crm.setting.domain.User;
 import com.bjpowernode.crm.setting.service.UserService;
 import com.bjpowernode.crm.workbench.domain.Activity;
+import com.bjpowernode.crm.workbench.domain.ActivityRemark;
+import com.bjpowernode.crm.workbench.service.ActivityRemarkService;
 import com.bjpowernode.crm.workbench.service.ActivityService;
 import com.sun.deploy.net.HttpResponse;
 import com.sun.tools.javac.jvm.ByteCodes;
@@ -20,7 +23,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.MultiDoc;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +49,9 @@ public class ActivityController {
 
 	@Autowired
 	private ActivityService activityService;
+
+	@Autowired
+	private ActivityRemarkService activityRemarkService;
 
 	/**
 	 * 返回市场活动的主页面
@@ -500,9 +508,143 @@ public class ActivityController {
 		wb.write(out);
 		wb.close();
 		out.flush();
-
-
 	}
 
 
+	/**
+	 * 演示文件上传
+	 * 必须配置springmvc的文件上传解析器
+	 *  ======== ======= ========= ======= 同步请求用json数据进行返回？======== ======= ========= =======
+	 * @param:  [username,
+	 * 			myFile：将从前端所接受的文件赋值到myFile中]
+	 * @date:   2025/7/16 10:20
+	 **/
+	@RequestMapping("/workbench/activity/fileUpload.do")
+	public  @ResponseBody Object fileUpload(String username, MultipartFile myFile) throws IOException {
+		// 打印
+		System.out.println("username:"+username);
+		// 在服务器中接受传来的文件，把文件在服务器指定的目录中生成一个同样的文件
+		// 路径必须创建，文件名可以不存在
+		// 获取文件全部名称
+		String originalFilename = myFile.getOriginalFilename();
+		File file = new File("C:\\Users\\Administrator\\Desktop\\",originalFilename);
+		myFile.transferTo(file);
+
+		// 返回响应信息
+		ReturnObject returnObject = new ReturnObject();
+		returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+		return returnObject;
 	}
+
+	/**
+	 * 处理文件上传请求
+	 * @date:   2025/7/16 22:14
+	 **/
+	@ResponseBody
+	@RequestMapping("/workbench/activity/importActivity.do")
+	public Object importActivity(MultipartFile activityFile,String username,HttpSession session){
+
+		System.out.println("username："+username);
+		User user = (User)session.getAttribute(Contants.SESSION_USER);
+		ReturnObject returnObject = new ReturnObject();
+		try {
+			// 在服务器中接受传来的文件，把文件在服务器指定的目录中生成一个同样的文件
+			// 路径必须创建，文件名可以不存在
+			// 获取文件全部名称
+
+			/*String originalFilename = activityFile.getOriginalFilename();
+			File file = new File("C:\\Users\\Administrator\\Desktop\\",originalFilename);
+			activityFile.transferTo(file);*/
+
+			// 解析excle文件，获取文件中的数据，并将数据封装为activityList
+			// 1.创建输入流，拿到文件
+			// FileInputStream is = new FileInputStream("C:\\Users\\Administrator\\Desktop\\" + originalFilename);
+			// 优化1：避免磁盘读写，从 activityFile 获取到输入流
+			InputStream is = activityFile.getInputStream();
+			// 2.根据上传的文件生成HSSFWorkBook
+			HSSFWorkbook wb = new HSSFWorkbook(is);
+			// 根据wb获取到的HSSFSheet对象，封装了一页的所有信息
+			HSSFSheet sheet = wb.getSheetAt(0);
+			// 根据sheet获取到的HSSFRow对象，封装了一行的所有信息
+			HSSFRow row = null;
+			HSSFCell cell = null;
+			Activity activity = null;
+			List<Activity> activityList = new ArrayList<>();
+			for (int i=1;i<=sheet.getLastRowNum();i++){  // sheet.getLastRowNum()最后一行的下标
+				row = sheet.getRow(i);
+				activity = new Activity();
+				// id:后台设定id
+				activity.setId(UUIDUtils.getUUID());
+				// owner:owner在数据库中以字符串的形式存储，是某些指定的数字id字符串，不可以交给用户随便输入
+				//       现在登录系统的用户，被指定为owner
+				activity.setOwner(user.getId());
+				// createTime
+				activity.setCreateTime(DateUtils.formateDatTIme(new Date()));
+				// CreateBy
+				activity.setCreateBy(user.getId());
+				for (int j=0;j<row.getLastCellNum();j++){ //row.getLastCellNum(),最后一列的编号+1，是总列数
+					// 根据row获取HSSFCell的对象，封装了一列的所有信息
+
+					cell = row.getCell(j);  //列的下标，从0开始，依次增加，cell 是获取到的下标为j的列（单元格）
+					// 获取列中的数据
+					String cellValue = HSSFUtils.getCellValueForStr(cell);
+					if(j==0){
+						activity.setName(cellValue);
+					}else if(j==1){
+						activity.setStartDate(cellValue);
+					}else if(j==2){
+						activity.setEndDate(cellValue);
+					}else if(j==3){
+						activity.setCost(cellValue);
+						activity.setEditBy(cellValue);
+						activity.setEditTime(cellValue);
+						activity.setDescription(cellValue);
+					}else if(j==4){
+						activity.setDescription(cellValue);
+					}
+
+				}
+				// 每一行中中所有的列数据保存到activity后，将avtivity保存到list集合中
+				activityList.add(activity);
+			}
+
+			// 调用service方法，保存市场活动，返回受影响条数
+			int ret = activityService.saveCreateActivityByList(activityList);
+			if (ret>0){
+				returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+				returnObject.setRetData(ret);
+			}else {
+				returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+				returnObject.setMessage("系统忙！");
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+			returnObject.setMessage("系统忙！");
+		}
+		return returnObject;
+	}
+
+	/**
+	 * 当用户点击详情链接的时候，跳转请求到这里进行处理
+	 * @date:   2025/7/18 11:44
+	 **/
+	@RequestMapping("/workbench/activity/detailActivity.do")
+	public String detailActivity(String id,HttpServletRequest request){
+		// 调用ActivityServiceservice方法，查询Activity
+		Activity activity = activityService.queryActivityForDetailById(id);
+		System.out.println("==============activity=========");
+		System.out.println(activity.getEndDate());
+		// 调用activityRemarkService方法，查询remarkList
+		List<ActivityRemark> remarkList = activityRemarkService.queryActivityRemarkForDetailByActivityId(id);
+
+		// 把数据保存在request作用域中
+		request.setAttribute("activity",activity);
+		request.setAttribute("remarkList",remarkList);
+
+		// 请求转发，跳转到活动明细页面
+		return "workbench/activity/detail";
+	}
+
+}
