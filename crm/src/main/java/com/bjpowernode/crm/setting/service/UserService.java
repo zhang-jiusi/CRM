@@ -15,3 +15,4 @@ public interface UserService {
 	/* 查询所有的用户信息 */
 	List<User> queryAllUsers();
 }
+

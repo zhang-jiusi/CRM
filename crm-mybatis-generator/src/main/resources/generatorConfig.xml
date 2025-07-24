@@ -11,7 +11,8 @@
     <!--导入属性配置-->
 
     <!--<properties resource="generator.properties"></properties>-->
-    <properties url="file:E:\WorkSpace\IdeaProjects4\crm-project\crm-mybatis-generator\src\main\resources\generator.properties"></properties>
+    <properties
+            url="file:E:\WorkSpace\IdeaProjects4\crm-project\crm-mybatis-generator\src\main\resources\generator.properties"></properties>
 
 
     <!--指定特定数据库的jdbc驱动jar包的位置-->
@@ -82,19 +83,19 @@
         </table>-->
 
         <!-- 市场活动表 -->
-        <table tableName="tbl_activity" domainObjectName="Activity"
+        <!--<table tableName="tbl_activity" domainObjectName="Activity"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false">
+        </table>-->
+
+        <!-- 线索表 -->
+        <table tableName="tbl_clue" domainObjectName="Clue"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">
         </table>
-
         <!--
-               <table tableName="tbl_clue" domainObjectName="Clue"
-                      enableCountByExample="false" enableUpdateByExample="false"
-                      enableDeleteByExample="false" enableSelectByExample="false"
-                      selectByExampleQueryId="false">
-               </table>
-
                <table tableName="tbl_clue_activity_relation" domainObjectName="ClueActivityRelation"
                       enableCountByExample="false" enableUpdateByExample="false"
                       enableDeleteByExample="false" enableSelectByExample="false"
@@ -144,27 +145,28 @@
                        selectByExampleQueryId="false">
                 </table>
 
+        -->
 
-                <table tableName="tbl_dictionary_value" domainObjectName="DictionaryValue"
-                       enableCountByExample="false" enableUpdateByExample="false"
-                       enableDeleteByExample="false" enableSelectByExample="false"
-                       selectByExampleQueryId="false">
-                </table>
+        <!-- 数据字典值 -->
+        <!--<table tableName="tbl_dic_value" domainObjectName="DicValue"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false">
+        </table>-->
+        <!--
+                        <table tableName="tbl_marketing_activities" domainObjectName="MarketingActivities"
+                               enableCountByExample="false" enableUpdateByExample="false"
+                               enableDeleteByExample="false" enableSelectByExample="false"
+                               selectByExampleQueryId="false">
+                        </table>
 
 
-                <table tableName="tbl_marketing_activities" domainObjectName="MarketingActivities"
-                       enableCountByExample="false" enableUpdateByExample="false"
-                       enableDeleteByExample="false" enableSelectByExample="false"
-                       selectByExampleQueryId="false">
-                </table>
-
-
-                <table tableName="tbl_marketing_activities_remark" domainObjectName="MarketingActivitiesRemark"
-                       enableCountByExample="false" enableUpdateByExample="false"
-                       enableDeleteByExample="false" enableSelectByExample="false"
-                       selectByExampleQueryId="false">
-                </table>
-                 -->
+                        <table tableName="tbl_marketing_activities_remark" domainObjectName="MarketingActivitiesRemark"
+                               enableCountByExample="false" enableUpdateByExample="false"
+                               enableDeleteByExample="false" enableSelectByExample="false"
+                               selectByExampleQueryId="false">
+                        </table>
+                         -->
 
         <table tableName="tbl_transaction" domainObjectName="Transaction"
                enableCountByExample="false" enableUpdateByExample="false"

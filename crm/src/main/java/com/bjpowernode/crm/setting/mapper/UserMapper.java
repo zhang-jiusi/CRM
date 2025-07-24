@@ -65,7 +65,6 @@ public interface UserMapper {
 
     /**
      * 查询所有的用户
-     *
      * @date:   2024/7/16 21:06
      **/
     List<User> selectAllUses();
