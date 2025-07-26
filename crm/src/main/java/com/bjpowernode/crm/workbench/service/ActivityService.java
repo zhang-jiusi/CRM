@@ -71,4 +71,10 @@ public interface ActivityService {
 	 * @date:   2025/7/18 10:09
 	 **/
 	Activity queryActivityForDetailById(String id);
+
+	/**
+	 * 根据clueId查询该线索相关联的市场活动的明细信息
+	 * @date:   2025/7/25 18:22
+	 **/
+	List<Activity> queryActivityForDetailByClueId(String clueId);
 }

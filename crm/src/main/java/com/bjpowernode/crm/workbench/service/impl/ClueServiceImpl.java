@@ -23,4 +23,13 @@ public class ClueServiceImpl implements ClueService {
 	public int saveCreateClue(Clue clue) {
 		return clueMapper.insertClue(clue);
 	}
+
+	/*
+	 * 通过id查询你市场活动明细
+	 * @date:   2025/7/24 23:35
+	 **/
+	@Override
+	public Clue queryClueForDatailById(String id) {
+		return  clueMapper.selectClueForDetailById(id);
+	}
 }

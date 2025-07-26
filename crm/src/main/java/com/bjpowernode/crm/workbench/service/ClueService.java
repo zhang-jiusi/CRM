@@ -13,4 +13,10 @@ public interface ClueService {
 	 **/
 	 public int saveCreateClue(Clue clue);
 
+	 /*
+	  * 通过id查询你市场活动明细
+	  * @date:   2025/7/24 23:35
+	  **/
+	 Clue queryClueForDatailById(String id);
+
 }

@@ -105,4 +105,16 @@ public interface ActivityMapper {
 	 **/
 	Activity selectActivityForDetailById(String id);
 
+
+	/**
+	 * 根据clueId查询该线索相关联的市场活动的明细信息
+	 * @date:   2025/7/25 17:52
+	 **/
+	List<Activity> selectActivityForDetailByClueId(String clueId);
+
+	/**
+	 * 根据name模糊查询市场活动，并且把已经与clueId关联过的市场活动排除
+	 * @date:   2025/7/26 18:19
+	 **/
+	List<Activity>  selectActivityForDetailByNameClueId(Map<String,Object> map);
 }

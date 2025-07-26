@@ -8,9 +8,14 @@ import com.bjpowernode.crm.setting.domain.DicValue;
 import com.bjpowernode.crm.setting.domain.User;
 import com.bjpowernode.crm.setting.service.DicValueService;
 import com.bjpowernode.crm.setting.service.UserService;
+import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.domain.Clue;
+import com.bjpowernode.crm.workbench.domain.ClueRemark;
+import com.bjpowernode.crm.workbench.service.ActivityService;
+import com.bjpowernode.crm.workbench.service.ClueRemarkService;
 import com.bjpowernode.crm.workbench.service.ClueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,6 +39,12 @@ public class ClueController {
 
 	@Autowired
 	private ClueService clueService;
+
+	@Autowired
+	private ClueRemarkService clueRemarkService;
+
+	@Autowired
+	private ActivityService activityService;
 
 	/**
 	 * 导航页跳转到线索页
@@ -69,16 +80,12 @@ public class ClueController {
 		User user = (User)session.getAttribute(Contants.SESSION_USER);
 		clue.setId(UUIDUtils.getUUID());
 		clue.setCreateTime(DateUtils.formateDatTIme(new Date()));
-		clue.setCreateBy(user.getName());
+		clue.setCreateBy(user.getId());
 
-		System.out.println("============ clue  ============");
-		System.out.println(clue.toString());
 		ReturnObject returnObject = new ReturnObject();
 		try{
 			// 调用 service 方法，保存 clue
 			int ret = clueService.saveCreateClue(clue);
-			System.out.println("======clueService.saveCreateClue(clue)====");
-			System.out.println(ret);
 			if (ret>0){
 				returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
 			}else {
@@ -94,6 +101,26 @@ public class ClueController {
 
 
 		return returnObject;
+	}
+
+	/**
+	 *
+	 * @date:   2025/7/25 18:28
+	 **/
+	@RequestMapping("/workbench/clue/detailClue.do")
+	public String detailClue(String id, HttpServletRequest request){
+		// 调用 service 查询数据
+		Clue clue = clueService.queryClueForDatailById(id);
+		List<ClueRemark> remarkList = clueRemarkService.queryClueRemarkForDetaidByClueId(id);
+		List<Activity> activityList = activityService.queryActivityForDetailByClueId(id);
+
+		// 将数据保存在作用域中
+		request.setAttribute("clue",clue);
+		request.setAttribute("remarkList",remarkList);
+		request.setAttribute("activityList",activityList);
+
+		// 请求转发
+		return "workbench/clue/detail";
 	}
 
 
